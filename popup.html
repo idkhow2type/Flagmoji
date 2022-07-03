@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="style.css" />
+        <script src="popup.js" defer></script>
+        <title>Document</title>
+    </head>
+    <body>
+        <header>
+            <h1>Flagmoji</h1>
+        </header>
+        <strong id="note"
+            >Remember to reload the page for changes to take place</strong
+        >
+        <main>
+            <div>
+                <button id="switch"></button>
+                <label for="switch">Enabled</label>
+            </div>
+            <hr />
+            <div>
+                <label for="size">Size: 1em</label>
+                <br />
+                <input
+                    type="range"
+                    name="size"
+                    id="size"
+                    min="0.1"
+                    max="3"
+                    value="1"
+                    step="0.1"
+                />
+            </div>
+            <hr />
+            <div>
+                <label for="padding">Padding: 10%</label>
+                <br />
+                <input
+                    type="range"
+                    name="padding"
+                    id="padding"
+                    min="0"
+                    max="0.5"
+                    value="0.1"
+                    step="0.05"
+                />
+            </div>
+            <hr />
+            <button id="reset">Reset settings</button>
+        </main>
+    </body>
+</html>

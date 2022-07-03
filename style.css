@@ -1,0 +1,103 @@
+:root {
+    --background: hsl(43, 100%, 62%);
+    --highlight: hsl(43, 100%, 31%);
+    --page-width: 200px;
+}
+* {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+}
+body {
+    background-color: var(--background);
+    margin: 0;
+    padding: 0;
+    width: var(--page-width);
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: var(--highlight);
+    color: white;
+    padding: 10%;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: calc(var(--page-width) / 100 * 7.5);
+    margin: 4% 0;
+    padding: 0 10%;
+}
+main > div {
+    padding: 0 10% 10%;
+    width: 100%;
+}
+main > div:nth-child(1) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+main > div:nth-child(2) > input {
+    width: 100%;
+}
+
+strong{
+    font-size: calc(var(--page-width) / 100 * 5.3);
+    padding: 3%;
+    text-align: justify;
+    display: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: calc(var(--page-width) / 100 * 10);
+}
+
+hr {
+    border: calc(var(--page-width) / 100 * 0.5) solid var(--highlight);
+    width: 100%;
+}
+
+input[type='range'] {
+    width: 100%;
+}
+
+button:hover,
+button:focus,
+input[type='range']:hover,
+input[type='range']:focus {
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    filter: brightness(0.9);
+    cursor: pointer;
+}
+
+#switch {
+    --size: 40%;
+    width: var(--size);
+    height: 0;
+    padding-bottom: var(--size);
+    background-image: url('icon.png');
+    background-size: contain;
+    background-color: transparent;
+    border: none;
+    border-radius: 15%;
+}
+#reset {
+    border: 2px solid var(--highlight);
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 110%;
+    padding: 7.5%;
+    margin: 2%;
+}
