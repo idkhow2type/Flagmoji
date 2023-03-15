@@ -40,9 +40,9 @@ function textNodesToFlag(el) {
         a = [],
         walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
     while ((n = walk.nextNode())) a.push(n);
+    const disable = ['SCRIPT','STYLE','TITLE']
     a.forEach((node) => {
-        if (node.parentElement.tagName === 'SCRIPT') return;
-        if (node.parentElement.tagName === 'STYLE') return;
+        if (disable.includes(node.parentElement.tagName)) return;
         nodeToFlag(node);
     });
 }
