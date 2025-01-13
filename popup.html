@@ -10,46 +10,31 @@
     </head>
     <body>
         <header>
-            <h1>Flagmoji</h1>
+            <h1><img src="assets/icon.png" alt="" /> Flagmoji</h1>
         </header>
-        <strong id="note"
-            >Remember to reload the page for changes to take place</strong
-        >
+        <strong id="note">Remember to reload the page for changes to take place</strong>
         <main>
             <div>
-                <button id="switch"></button>
-                <label for="switch">Enabled</label>
+                <span>
+                    <label for="size">Size: 1em</label>
+                    <br />
+                    <input type="range" name="size" id="size" min="0.1" max="3" value="1" step="0.1" />
+                </span>
+                <button class="reset">
+                    <img src="assets/reset.svg" alt="" />
+                </button>
             </div>
             <hr />
             <div>
-                <label for="size">Size: 1em</label>
-                <br />
-                <input
-                    type="range"
-                    name="size"
-                    id="size"
-                    min="0.1"
-                    max="3"
-                    value="1"
-                    step="0.1"
-                />
+                <span>
+                    <label for="padding">Padding: 10%</label>
+                    <br />
+                    <input type="range" name="padding" id="padding" min="0" max="0.5" value="0.1" step="0.05" />
+                </span>
+                <button class="reset">
+                    <img src="assets/reset.svg" alt="" />
+                </button>
             </div>
-            <hr />
-            <div>
-                <label for="padding">Padding: 10%</label>
-                <br />
-                <input
-                    type="range"
-                    name="padding"
-                    id="padding"
-                    min="0"
-                    max="0.5"
-                    value="0.1"
-                    step="0.05"
-                />
-            </div>
-            <hr />
-            <button id="reset">Reset settings</button>
         </main>
     </body>
 </html>
