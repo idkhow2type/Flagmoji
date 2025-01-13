@@ -1,4 +1,4 @@
-import settings from './settings.js';
+import settings from '../settings.js';
 
 const main = document.querySelector('main');
 

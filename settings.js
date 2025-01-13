@@ -2,7 +2,7 @@ export default {
     size: {
         min: 0.1,
         max: 3,
-        default: 1,
+        default: 1.5,
         step: 0.1,
     },
     padding: {
