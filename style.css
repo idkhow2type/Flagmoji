@@ -36,7 +36,7 @@ main {
     color: black;
 }
 main > div {
-    padding: 0 10% 10%;
+    padding: 10%;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -91,13 +91,4 @@ input:focus {
     outline: none;
     filter: brightness(0.8);
     cursor: pointer;
-}
-
-#reset {
-    border: medium solid var(--highlight);
-    background-color: var(--background);
-    font-weight: bold;
-    font-size: 110%;
-    padding: 7.5%;
-    margin: 2%;
 }

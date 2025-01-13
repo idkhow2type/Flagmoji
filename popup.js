@@ -1,25 +1,35 @@
-const sizeSlider = document.querySelector('#size');
-const sizeText = document.querySelector('label[for="size"]');
-const paddingSlider = document.querySelector('#padding');
-const paddingText = document.querySelector('label[for="padding"]');
+import settings from './settings.js';
 
-function display() {
-    chrome.storage.sync.get(['size', 'padding'], ({ size, padding }) => {
-        sizeSlider.value = size;
-        sizeText.innerText = `Size: ${size}em`;
-        paddingSlider.value = padding;
-        paddingText.innerText = `Padding: ${padding * 100}%`;
+const main = document.querySelector('main');
+
+for (const setting in settings) {
+    const wrap = document.querySelector('#range-template').content.cloneNode(true);
+    const label = wrap.querySelector('label');
+    const input = wrap.querySelector('input');
+    const reset = wrap.querySelector('button');
+
+    input.min = settings[setting].min;
+    input.max = settings[setting].max;
+    input.step = settings[setting].step;
+
+    const value = (await chrome.storage.sync.get({ [setting]: settings[setting].default }))[setting];
+
+    label.innerText = `${setting[0].toUpperCase()}${setting.slice(1)}: ${value}`;
+    input.name = setting;
+    input.value = value;
+
+    input.addEventListener('input', () => {
+        label.innerText = `${setting[0].toUpperCase()}${setting.slice(1)}: ${input.value}`;
+        chrome.storage.sync.set({ [setting]: input.value });
     });
+
+    reset.addEventListener('click', () => {
+        input.value = settings[setting].default;
+        label.innerText = `${setting[0].toUpperCase()}${setting.slice(1)}: ${input.value}`;
+        chrome.storage.sync.set({ [setting]: input.value });
+    });
+
+    main.appendChild(wrap);
+    main.appendChild(document.createElement('hr'));
 }
-
-display();
-
-sizeSlider.addEventListener('input', () => {
-    chrome.storage.sync.set({ size: sizeSlider.value });
-    display();
-});
-
-paddingSlider.addEventListener('input', () => {
-    chrome.storage.sync.set({ padding: paddingSlider.value });
-    display();
-});
+main.lastElementChild.remove();
