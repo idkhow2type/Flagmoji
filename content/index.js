@@ -9,20 +9,51 @@
     });
 
     /**
-     * @param {HTMLElement} element
+     * @param {Node} node
      */
-    function flagify(element) {
+    function flagify(node) {
         // years of programming
         // still have to match twice smh
-        element.innerHTML = element.innerHTML.replaceAll(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, (match) => {
-            const regionCode = [...match.matchAll(/[\uDDE6-\uDDFF]/g)]
-                .map((m) => 'abcdefghijklmnopqrstuvwxyz'[m[0].charCodeAt(0) - 56806])
-                .join('');
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) {
+            textNodes.push(walker.currentNode);
+        }
+        for (const textNode of textNodes) {
+            // todo: user configurable blacklist
+            if (['SCRIPT', 'STYLE', 'TITLE'].includes(textNode.parentElement.tagName)) continue;
 
-            return `<img src="https://flagcdn.com/${regionCode}.svg" alt="${match}" style="width: ${
-                size * (1 - padding)
-            }em; padding: 0 ${size * (padding / 2)}em">`;
-        });
+            const html = textNode.textContent.replaceAll(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, (match) => {
+                const regionCode =
+                    'abcdefghijklmnopqrstuvwxyz'[match.charCodeAt(1) - 56806] +
+                    'abcdefghijklmnopqrstuvwxyz'[match.charCodeAt(3) - 56806];
+
+                const span = document.createElement('span');
+                span.style = `
+                    display: inline-flex;
+                    height: 1lh;
+                    vertical-align: bottom;
+                    align-items: center;
+                `;
+                const img = document.createElement('img');
+                img.src = `https://flagcdn.com/${regionCode}.svg`;
+                img.alt = match;
+                img.style = `
+                    box-sizing: border-box;
+                    width: ${size}em;
+                    height: auto;
+                    padding: 0 calc(${size}em * ${padding} / 200);
+                `;
+                span.appendChild(img);
+
+                return span.outerHTML;
+            });
+
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+            textNode.replaceWith(wrapper);
+            wrapper.outerHTML = wrapper.innerHTML;
+        }
     }
 
     flagify(document.body);
