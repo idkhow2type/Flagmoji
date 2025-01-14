@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".", // Base path for your project
+        "paths": {
+            "chrome": [
+                "types/chrome.d.ts"
+            ] // Map "chrome" to your .d.ts file
+        }
+    },
+    "include": [
+        "**/*.js",
+        "types/**/*.d.ts"
+    ]
+}

@@ -29,21 +29,10 @@
                     'abcdefghijklmnopqrstuvwxyz'[match.charCodeAt(3) - 56806];
 
                 const span = document.createElement('span');
-                span.style = `
-                    display: inline-flex;
-                    height: 1lh;
-                    vertical-align: bottom;
-                    align-items: center;
-                `;
+                span.className = 'flagmoji';
                 const img = document.createElement('img');
                 img.src = `https://flagcdn.com/${regionCode}.svg`;
                 img.alt = match;
-                img.style = `
-                    box-sizing: border-box;
-                    width: ${size}em;
-                    height: auto;
-                    padding: 0 calc(${size}em * ${padding} / 200);
-                `;
                 span.appendChild(img);
 
                 return span.outerHTML;
@@ -56,6 +45,22 @@
         }
     }
 
+    const style = document.createElement('style');
+    style.textContent = `
+        span.flagmoji {
+            display: inline-flex;
+            height: 1lh;
+            vertical-align: bottom;
+            align-items: center;
+        }
+        span.flagmoji img {
+            box-sizing: border-box;
+            width: ${size}em;
+            height: auto;
+            padding: 0 calc(${size}em * ${padding} / 200);
+        }
+    `;
+    document.head.appendChild(style);
     flagify(document.body);
     const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
@@ -66,4 +71,25 @@
         }
     });
     observer.observe(document.body, { childList: true, subtree: true });
+
+    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+        const { size, padding } = await chrome.storage.sync.get({
+            size: settings.size.default,
+            padding: settings.padding.default,
+        });
+        style.textContent = `
+            span.flagmoji {
+                display: inline-flex;
+                height: 1lh;
+                vertical-align: bottom;
+                align-items: center;
+            }
+            span.flagmoji img {
+                box-sizing: border-box;
+                width: ${size}em;
+                height: auto;
+                padding: 0 calc(${size}em * ${padding} / 200);
+            }
+        `;
+    });
 })();
