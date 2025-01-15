@@ -12,16 +12,15 @@
      * @param {Node} node
      */
     function flagify(node) {
-        // years of programming
-        // still have to match twice smh
         const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
         const textNodes = [];
         while (walker.nextNode()) {
             textNodes.push(walker.currentNode);
         }
         for (const textNode of textNodes) {
+            if (!textNode.parentElement) continue; // how tf does this happen
             // todo: user configurable blacklist
-            if (['SCRIPT', 'STYLE', 'TITLE'].includes(textNode.parentElement.tagName)) continue;
+            if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(textNode.parentElement.tagName)) continue;
 
             const html = textNode.textContent.replaceAll(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, (match) => {
                 const regionCode =
@@ -72,7 +71,7 @@
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+    chrome.storage.onChanged.addListener(async (changes) => {
         const { size, padding } = await chrome.storage.sync.get({
             size: settings.size.default,
             padding: settings.padding.default,
