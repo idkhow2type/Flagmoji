@@ -3,9 +3,10 @@
     const src = chrome.runtime.getURL('../settings.js');
     const settings = (await import(src)).default;
 
-    const { size, padding } = await chrome.storage.sync.get({
+    const { size, padding, excluded_tags } = await chrome.storage.sync.get({
         size: settings.size.default,
         padding: settings.padding.default,
+        excluded_tags: settings.excluded_tags.default,
     });
 
     /**
@@ -19,8 +20,7 @@
         }
         for (const textNode of textNodes) {
             if (!textNode.parentElement) continue; // how tf does this happen
-            // todo: user configurable blacklist
-            if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(textNode.parentElement.tagName)) continue;
+            if (excluded_tags.includes(textNode.parentElement.tagName)) continue;
 
             const html = textNode.textContent.replaceAll(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, (match) => {
                 const regionCode =
