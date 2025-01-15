@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "baseUrl": ".", // Base path for your project
+        "target": "ES2023",
         "paths": {
             "chrome": [
                 "types/chrome.d.ts"

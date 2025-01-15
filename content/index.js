@@ -22,25 +22,40 @@
             if (!textNode.parentElement) continue; // how tf does this happen
             if (excluded_tags.includes(textNode.parentElement.tagName)) continue;
 
-            const html = textNode.textContent.replaceAll(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, (match) => {
-                const regionCode =
-                    'abcdefghijklmnopqrstuvwxyz'[match.charCodeAt(1) - 56806] +
-                    'abcdefghijklmnopqrstuvwxyz'[match.charCodeAt(3) - 56806];
+            const frag = document.createDocumentFragment();
+            frag.appendChild(document.createTextNode(''));
 
+            for (let i = 0; i < textNode.textContent.length; i++) {
+                if (
+                    !(
+                        textNode.textContent.charCodeAt(i) === 0xd83c &&
+                        0xdde6 <= textNode.textContent.charCodeAt(i + 1) &&
+                        textNode.textContent.charCodeAt(i + 1) <= 0xddff &&
+                        0xd83c <= textNode.textContent.charCodeAt(i + 2) &&
+                        0xdde6 <= textNode.textContent.charCodeAt(i + 3) &&
+                        textNode.textContent.charCodeAt(i + 3) <= 0xddff
+                    )
+                ) {
+                    frag.lastChild.textContent += textNode.textContent[i];
+                    continue;
+                }
+
+                const regionCode =
+                    'abcdefghijklmnopqrstuvwxyz'[textNode.textContent.charCodeAt(i + 1) - 56806] +
+                    'abcdefghijklmnopqrstuvwxyz'[textNode.textContent.charCodeAt(i + 3) - 56806];
                 const span = document.createElement('span');
                 span.className = 'flagmoji';
                 const img = document.createElement('img');
                 img.src = `https://flagcdn.com/${regionCode}.svg`;
-                img.alt = match;
+                img.alt = textNode.textContent.slice(i, i + 4);
                 span.appendChild(img);
+                frag.appendChild(span);
 
-                return span.outerHTML;
-            });
+                i += 3;
+                frag.appendChild(document.createTextNode(''));
+            }
 
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = html;
-            textNode.replaceWith(wrapper);
-            wrapper.outerHTML = wrapper.innerHTML;
+            textNode.replaceWith(frag);
         }
     }
 
