@@ -3,11 +3,56 @@
     const src = chrome.runtime.getURL('../settings.js');
     const settings = (await import(src)).default;
 
-    const { size, padding, excluded_tags } = await chrome.storage.sync.get({
+    let { size, padding, excluded_tags } = await chrome.storage.sync.get({
         size: settings.size.default,
         padding: settings.padding.default,
         excluded_tags: settings.excluded_tags.default,
     });
+
+    /**
+     * @param {string} str
+     * @param {number} start
+     * @returns {[string, number] | null}
+     */
+    function parseCode(str, start) {
+        str = str.slice(start);
+        let src = null;
+        let emoji = null;
+
+        if ((emoji = str.match(/^(?:\uD83C[\uDDE6-\uDDFF]){2}/)?.[0])) {
+            str = str.slice(0, 4);
+            src = '';
+            for (let i = 1; i < str.length; i += 2) {
+                src += String.fromCodePoint('a'.codePointAt(0) + str.charCodeAt(i) - 0xdde6);
+            }
+        } else if ((emoji = str.match(/^\ud83c\udff4(?:\uDB40[\uDC61-\uDC7A]){5}\uDB40\uDC7F/)?.[0])) {
+            str = str.slice(0, 12);
+            src = '';
+            for (let i = 3; i < str.length; i += 2) {
+                src += String.fromCodePoint('a'.codePointAt(0) + str.charCodeAt(i) - 0xdc61);
+            }
+        }
+
+        const codeMaps = {
+            ac: 'sh',
+            cp: 'fr',
+            dg: 'io',
+            ta: 'sh',
+            ea: 'es',
+            gbeng: 'gb-eng',
+            gbsct: 'gb-sct',
+            gbwls: 'gb-wls',
+        };
+        src = codeMaps[src] || src;
+
+        const srcMaps = {
+            ic: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_the_Canary_Islands_%28simple%29.svg',
+        };
+        // funky retain null
+        src = src && (srcMaps[src] || `https://flagcdn.com/${src}.svg`);
+
+        return { emoji, src };
+    }
 
     /**
      * @param {Node} node
@@ -19,43 +64,38 @@
             textNodes.push(walker.currentNode);
         }
         for (const textNode of textNodes) {
-            if (!textNode.parentElement) continue; // how tf does this happen
             if (excluded_tags.includes(textNode.parentElement.tagName)) continue;
 
             const frag = document.createDocumentFragment();
             frag.appendChild(document.createTextNode(''));
 
+            let replaced = false;
             for (let i = 0; i < textNode.textContent.length; i++) {
-                if (
-                    !(
-                        textNode.textContent.charCodeAt(i) === 0xd83c &&
-                        0xdde6 <= textNode.textContent.charCodeAt(i + 1) &&
-                        textNode.textContent.charCodeAt(i + 1) <= 0xddff &&
-                        0xd83c <= textNode.textContent.charCodeAt(i + 2) &&
-                        0xdde6 <= textNode.textContent.charCodeAt(i + 3) &&
-                        textNode.textContent.charCodeAt(i + 3) <= 0xddff
-                    )
-                ) {
+                const { emoji, src } = parseCode(textNode.textContent, i);
+                if (!emoji) {
                     frag.lastChild.textContent += textNode.textContent[i];
                     continue;
                 }
+                replaced = true;
 
-                const regionCode =
-                    'abcdefghijklmnopqrstuvwxyz'[textNode.textContent.charCodeAt(i + 1) - 56806] +
-                    'abcdefghijklmnopqrstuvwxyz'[textNode.textContent.charCodeAt(i + 3) - 56806];
+                // kinda tempted to write this as a string so its easier to read
+                // this is easier to use though
                 const span = document.createElement('span');
                 span.className = 'flagmoji';
                 const img = document.createElement('img');
-                img.src = `https://flagcdn.com/${regionCode}.svg`;
-                img.alt = textNode.textContent.slice(i, i + 4);
+                img.src = src;
+                img.alt = emoji;
                 span.appendChild(img);
                 frag.appendChild(span);
 
-                i += 3;
+                i += emoji.length - 1;
                 frag.appendChild(document.createTextNode(''));
             }
 
-            textNode.replaceWith(frag);
+            // actually a dumb hack cuz some frameworks want to
+            // treat the original text node as one node
+            // dont really know why this avoids that, it probably doesnt
+            if (replaced) textNode.replaceWith(frag);
         }
     }
 
@@ -86,11 +126,12 @@
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    chrome.storage.onChanged.addListener(async (changes) => {
-        const { size, padding } = await chrome.storage.sync.get({
-            size: settings.size.default,
-            padding: settings.padding.default,
-        });
+    chrome.runtime.onMessage.addListener(async (message) => {
+        // this is so dumb
+        ({ size, padding } = { size, padding, ...message });
+        // you can also do this, so pick your poison
+        // ({ size = size, padding = padding } = message);
+
         style.textContent = `
             span.flagmoji {
                 display: inline-flex;

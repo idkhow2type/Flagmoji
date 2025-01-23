@@ -5,7 +5,8 @@
     "manifest_version": 3,
     "permissions": [
         "storage",
-        "scripting"
+        "scripting",
+        "tabs"
     ],
     "web_accessible_resources": [
         {

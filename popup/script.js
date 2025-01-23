@@ -1,4 +1,7 @@
 import settings from '../settings.js';
+import { debounce } from '../utils.js';
+
+const setSettings = debounce((obj) => chrome.storage.sync.set(obj), 500);
 
 const main = document.querySelector('main');
 
@@ -38,16 +41,19 @@ async function numberComponent(setting) {
 
     input.addEventListener('input', async () => {
         label.innerText = `${labelText}: ${input.value}${settings[setting].unit}`;
-        chrome.storage.sync.set({ [setting]: input.value });
-        for (const tab of await chrome.tabs.query({ discarded: false })) {
-            chrome.tabs.sendMessage(tab.id, 'update');
+        setSettings({ [setting]: input.value });
+        for (const tab of await chrome.tabs.query({ discarded: false, status: 'complete' })) {
+            chrome.tabs.sendMessage(tab.id, { [setting]: input.value});
         }
     });
 
     reset.addEventListener('click', async () => {
         input.value = settings[setting].default;
         label.innerText = `${labelText}: ${input.value}${settings[setting].unit}`;
-        chrome.storage.sync.set({ [setting]: input.value });
+        setSettings({ [setting]: input.value });
+        for (const tab of await chrome.tabs.query({ discarded: false, status: 'complete' })) {
+            chrome.tabs.sendMessage(tab.id, { [setting]: input.value});
+        }
     });
 
     return wrap;
@@ -83,12 +89,12 @@ async function listComponent(setting) {
 
     textarea.addEventListener('input', async () => {
         const list = textarea.value.toUpperCase().split('\n');
-        chrome.storage.sync.set({ [setting]: list });
+        setSettings({ [setting]: list });
     });
 
     reset.addEventListener('click', async () => {
-        textarea.value = settings[setting].default.toLowerCase().join('\n');
-        chrome.storage.sync.set({ [setting]: settings[setting].default });
+        textarea.value = settings[setting].default.join('\n').toLowerCase();
+        setSettings({ [setting]: settings[setting].default });
     });
 
     return wrap;
@@ -100,7 +106,7 @@ for (const setting in settings) {
         list: listComponent,
     };
 
-    main.appendChild(components[settings[setting].type](setting));
+    main.appendChild(await components[settings[setting].type](setting));
     main.appendChild(document.createElement('hr'));
 }
 
