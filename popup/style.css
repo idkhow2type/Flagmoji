@@ -1,6 +1,6 @@
 :root {
-    --background: hsl(43, 100%, 62%);
-    --highlight: hsl(43, 100%, 31%);
+    --background: #ffc83d;
+    --highlight: #9e7100;
     --page-width: 200px;
 }
 * {

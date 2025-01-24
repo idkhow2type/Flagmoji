@@ -1,12 +1,11 @@
 {
     "name": "Flagmoji",
-    "description": "Replace regional indicators with images of flags",
-    "version": "1.1.1",
+    "description": "Displays flag emojis",
+    "version": "2.0.0",
     "manifest_version": 3,
     "permissions": [
         "storage",
-        "scripting",
-        "tabs"
+        "scripting"
     ],
     "web_accessible_resources": [
         {
