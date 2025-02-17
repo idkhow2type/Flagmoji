@@ -4,4 +4,4 @@ Flag emojis aren't supported on Windows, so I created this extension to replace 
 Download the extension for Chromium browsers [here](https://chrome.google.com/webstore/detail/flagmoji/bnnhpohpnamnjhajbkgpmblleljodlhd)
 
 ## Credits:
-- [flagpedia.net](https://www.flagpedia.net) for the flag images
+- [flagpedia.net](https://www.flagpedia.net) and Wikipedia for  flag images

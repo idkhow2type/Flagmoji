@@ -19,6 +19,8 @@
         let src = null;
         let emoji = null;
 
+        // this is really ugly and confusing
+        // but im here to make it work, not make it good
         if ((emoji = str.match(/^(?:\uD83C[\uDDE6-\uDDFF]){2}/)?.[0])) {
             str = str.slice(0, 4);
             src = '';
@@ -31,6 +33,8 @@
             for (let i = 3; i < str.length; i += 2) {
                 src += String.fromCodePoint('a'.codePointAt(0) + str.charCodeAt(i) - 0xdc61);
             }
+        } else if ((emoji = str.match(/^\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f/)?.[0])){
+            src = 'trans';
         }
 
         const codeMaps = {
@@ -47,6 +51,7 @@
 
         const srcMaps = {
             ic: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_the_Canary_Islands_%28simple%29.svg',
+            trans: 'https://upload.wikimedia.org/wikipedia/commons/b/b0/Transgender_Pride_flag.svg',
         };
         // funky retain null
         src = src && (srcMaps[src] || `https://flagcdn.com/${src}.svg`);
