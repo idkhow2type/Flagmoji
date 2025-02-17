@@ -1,0 +1,9 @@
+flagmoji.zip
+---
+assets/**
+!assets/banner/**
+content/**
+popup/**
+manifest.json
+settings.js
+utils.js
