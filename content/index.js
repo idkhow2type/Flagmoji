@@ -33,7 +33,7 @@
             for (let i = 3; i < str.length; i += 2) {
                 src += String.fromCodePoint('a'.codePointAt(0) + str.charCodeAt(i) - 0xdc61);
             }
-        } else if ((emoji = str.match(/^\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f/)?.[0])){
+        } else if ((emoji = str.match(/^\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f/)?.[0])) {
             src = 'trans';
         }
 
@@ -90,6 +90,10 @@
                 const img = document.createElement('img');
                 img.src = src;
                 img.alt = emoji;
+                img.addEventListener('copy', (e) => {
+                    e.preventDefault();
+                    e.clipboardData.setData('text/plain', emoji);
+                });
                 span.appendChild(img);
                 frag.appendChild(span);
 
@@ -100,25 +104,35 @@
             // actually a dumb hack cuz some frameworks want to
             // treat the original text node as one node
             // dont really know why this avoids that, it probably doesnt
-            if (replaced) textNode.replaceWith(frag);
+            
+            if (replaced) {
+                textNode.replaceWith(frag);
+            }
         }
     }
 
     const style = document.createElement('style');
-    style.textContent = `
-        span.flagmoji {
-            display: inline-flex;
-            height: 1lh;
-            vertical-align: bottom;
-            align-items: center;
-        }
-        span.flagmoji img {
-            box-sizing: border-box;
-            width: ${size}em;
-            height: auto;
-            padding: 0 calc(${size}em * ${padding} / 200);
-        }
-    `;
+    // TODO: maybe use css variables for this
+    function setStyle(size, padding) {
+        style.textContent = `
+            span.flagmoji {
+                all: unset;
+                display: inline-flex;
+                height: 1lh;
+                vertical-align: bottom;
+                align-items: center;
+            }
+            span.flagmoji img {
+                all: unset;
+                box-sizing: border-box;
+                width: ${size}em;
+                height: auto;
+                padding: 0 calc(${size}em * ${padding} / 200);
+            }
+        `;
+    }
+
+    setStyle(size, padding);
     document.head.appendChild(style);
     flagify(document.body);
     const observer = new MutationObserver((mutations) => {
@@ -137,19 +151,6 @@
         // you can also do this, so pick your poison
         // ({ size = size, padding = padding } = message);
 
-        style.textContent = `
-            span.flagmoji {
-                display: inline-flex;
-                height: 1lh;
-                vertical-align: bottom;
-                align-items: center;
-            }
-            span.flagmoji img {
-                box-sizing: border-box;
-                width: ${size}em;
-                height: auto;
-                padding: 0 calc(${size}em * ${padding} / 200);
-            }
-        `;
+        setStyle(size, padding);
     });
 })();

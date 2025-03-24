@@ -1,7 +1,7 @@
 {
     "name": "Flagmoji",
     "description": "Displays flag emojis",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "manifest_version": 3,
     "permissions": [
         "storage"
