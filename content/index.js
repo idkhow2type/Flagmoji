@@ -10,56 +10,6 @@
     });
 
     /**
-     * @param {string} str
-     * @param {number} start
-     * @returns {[string, number] | null}
-     */
-    function parseCode(str, start) {
-        str = str.slice(start);
-        let src = null;
-        let emoji = null;
-
-        // this is really ugly and confusing
-        // but im here to make it work, not make it good
-        if ((emoji = str.match(/^(?:\uD83C[\uDDE6-\uDDFF]){2}/)?.[0])) {
-            str = str.slice(0, 4);
-            src = '';
-            for (let i = 1; i < str.length; i += 2) {
-                src += String.fromCodePoint('a'.codePointAt(0) + str.charCodeAt(i) - 0xdde6);
-            }
-        } else if ((emoji = str.match(/^\ud83c\udff4(?:\uDB40[\uDC61-\uDC7A]){5}\uDB40\uDC7F/)?.[0])) {
-            str = str.slice(0, 12);
-            src = '';
-            for (let i = 3; i < str.length; i += 2) {
-                src += String.fromCodePoint('a'.codePointAt(0) + str.charCodeAt(i) - 0xdc61);
-            }
-        } else if ((emoji = str.match(/^\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f/)?.[0])) {
-            src = 'trans';
-        }
-
-        const codeMaps = {
-            ac: 'sh',
-            cp: 'fr',
-            dg: 'io',
-            ta: 'sh',
-            ea: 'es',
-            gbeng: 'gb-eng',
-            gbsct: 'gb-sct',
-            gbwls: 'gb-wls',
-        };
-        src = codeMaps[src] || src;
-
-        const srcMaps = {
-            ic: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_the_Canary_Islands_%28simple%29.svg',
-            trans: 'https://upload.wikimedia.org/wikipedia/commons/b/b0/Transgender_Pride_flag.svg',
-        };
-        // funky retain null
-        src = src && (srcMaps[src] || `https://flagcdn.com/${src}.svg`);
-
-        return { emoji, src };
-    }
-
-    /**
      * @param {Node} node
      */
     function flagify(node) {
@@ -71,40 +21,89 @@
         for (const textNode of textNodes) {
             if (excluded_tags.includes(textNode.parentElement.tagName)) continue;
 
-            const frag = document.createDocumentFragment();
-            frag.appendChild(document.createTextNode(''));
+            const flagPattern = /(?:\uD83C[\uDDE6-\uDDFF]){2}/;
+            const gbPattern = /\ud83c\udff4(?:\uDB40[\uDC61-\uDC7A]){5}\uDB40\uDC7F/;
+            const transPattern = /\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f/;
+
+            const combined = new RegExp(`(${flagPattern.source})|(${gbPattern.source})|(${transPattern.source})`, 'g');
 
             let replaced = false;
-            for (let i = 0; i < textNode.textContent.length; i++) {
-                const { emoji, src } = parseCode(textNode.textContent, i);
-                if (!emoji) {
-                    frag.lastChild.textContent += textNode.textContent[i];
-                    continue;
+            const frag = document.createDocumentFragment();
+            let lastIndex = 0;
+            let match;
+
+            while ((match = combined.exec(textNode.textContent)) !== null) {
+                // Add the text before the emoji
+                if (match.index > lastIndex) {
+                    frag.appendChild(document.createTextNode(textNode.textContent.substring(lastIndex, match.index)));
                 }
-                replaced = true;
 
-                // kinda tempted to write this as a string so its easier to read
-                // this is easier to use though
-                const span = document.createElement('span');
-                span.className = 'flagmoji';
-                const img = document.createElement('img');
-                img.src = src;
-                img.alt = emoji;
-                img.addEventListener('copy', (e) => {
-                    e.preventDefault();
-                    e.clipboardData.setData('text/plain', emoji);
-                });
-                span.appendChild(img);
-                frag.appendChild(span);
+                let src = null;
+                let emoji = null;
 
-                i += emoji.length - 1;
-                frag.appendChild(document.createTextNode(''));
+                if (match[1]) {
+                    // Flag emoji
+                    emoji = match[1];
+                    src = '';
+                    for (let i = 1; i < emoji.length; i += 2) {
+                        src += String.fromCodePoint('a'.codePointAt(0) + emoji.charCodeAt(i) - 0xdde6);
+                    }
+                } else if (match[2]) {
+                    // GB emoji
+                    emoji = match[2];
+                    src = '';
+                    for (let i = 3; i < emoji.length; i += 2) {
+                        src += String.fromCodePoint('a'.codePointAt(0) + emoji.charCodeAt(i) - 0xdc61);
+                    }
+                } else if (match[3]) {
+                    // Trans emoji
+                    emoji = match[3];
+                    src = 'trans';
+                }
+
+                const codeMaps = {
+                    ac: 'sh',
+                    cp: 'fr',
+                    dg: 'io',
+                    ta: 'sh',
+                    ea: 'es',
+                    gbeng: 'gb-eng',
+                    gbsct: 'gb-sct',
+                    gbwls: 'gb-wls',
+                };
+                src = codeMaps[src] || src;
+
+                const srcMaps = {
+                    ic: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_the_Canary_Islands_%28simple%29.svg',
+                    trans: 'https://upload.wikimedia.org/wikipedia/commons/b/b0/Transgender_Pride_flag.svg',
+                };
+
+                src = src && (srcMaps[src] || `https://flagcdn.com/${src}.svg`);
+
+                if (emoji) {
+                    replaced = true;
+
+                    const span = document.createElement('span');
+                    span.className = 'flagmoji';
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = emoji;
+                    img.addEventListener('copy', (e) => {
+                        e.preventDefault();
+                        e.clipboardData.setData('text/plain', emoji);
+                    });
+                    span.appendChild(img);
+                    frag.appendChild(span);
+                }
+
+                lastIndex = combined.lastIndex;
             }
 
-            // actually a dumb hack cuz some frameworks want to
-            // treat the original text node as one node
-            // dont really know why this avoids that, it probably doesnt
-            
+            // Add the remaining text after the last emoji
+            if (lastIndex < textNode.textContent.length) {
+                frag.appendChild(document.createTextNode(textNode.textContent.substring(lastIndex)));
+            }
+
             if (replaced) {
                 textNode.replaceWith(frag);
             }
