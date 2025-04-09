@@ -94,24 +94,22 @@
 
     const style = document.createElement('style');
     // TODO: maybe use css variables for this
-    // TODO: use shadow dom
+    // TODO: use shadow dom instead of important
     function setStyle(size, padding) {
         style.textContent = `
             span.flagmoji {
-                all: unset;
-                display: inline-flex;
-                height: 1lh;
-                vertical-align: bottom;
-                align-items: center;
+                all: unset !important;
+                display: inline-flex !important;
+                height: 1lh !important;
+                vertical-align: bottom !important;
+                align-items: center !important;
             }
             span.flagmoji img {
                 all: unset !important;
                 box-sizing: border-box !important;
-                width: auto !important;
-                /* i want to use lh but found a site that set lh to 0
-                so were using em to hopefully be more reliable */
-                height: ${size}em !important;
-                padding: calc(${size}em * ${padding} / 200) 0 !important;
+                width: ${size}em !important;
+                height: auto !important;
+                padding: 0 calc(${size}em * ${padding} / 200) !important;
             }
         `;
     }
