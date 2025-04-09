@@ -1,7 +1,4 @@
 import settings from '../settings.js';
-import { debounce } from '../utils.js';
-
-const setSettings = debounce((obj) => chrome.storage.sync.set(obj), 500);
 
 const main = document.querySelector('main');
 
@@ -41,16 +38,19 @@ async function numberComponent(setting) {
 
     input.addEventListener('input', async () => {
         label.innerText = `${labelText}: ${input.value}${settings[setting].unit}`;
-        setSettings({ [setting]: input.value });
         for (const tab of await chrome.tabs.query({ discarded: false, status: 'complete' })) {
             chrome.tabs.sendMessage(tab.id, { [setting]: input.value});
         }
+    });
+    // TIL onchange and oninput act differently
+    input.addEventListener('change', async () => {
+        chrome.storage.sync.set({ [setting]: input.value });
     });
 
     reset.addEventListener('click', async () => {
         input.value = settings[setting].default;
         label.innerText = `${labelText}: ${input.value}${settings[setting].unit}`;
-        setSettings({ [setting]: input.value });
+        chrome.storage.sync.set({ [setting]: settings[setting].default });
         for (const tab of await chrome.tabs.query({ discarded: false, status: 'complete' })) {
             chrome.tabs.sendMessage(tab.id, { [setting]: input.value});
         }
@@ -87,14 +87,14 @@ async function listComponent(setting) {
     textarea.name = setting;
     textarea.value = value.join('\n').toLowerCase();
 
-    textarea.addEventListener('input', async () => {
+    textarea.addEventListener('change', async () => {
         const list = textarea.value.toUpperCase().split('\n');
-        setSettings({ [setting]: list });
+        chrome.storage.sync.set({ [setting]: list });
     });
 
     reset.addEventListener('click', async () => {
         textarea.value = settings[setting].default.join('\n').toLowerCase();
-        setSettings({ [setting]: settings[setting].default });
+        chrome.storage.sync.set({ [setting]: settings[setting].default });
     });
 
     return wrap;

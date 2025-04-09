@@ -6,4 +6,3 @@ content/**
 popup/**
 manifest.json
 settings.js
-utils.js

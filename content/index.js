@@ -38,47 +38,28 @@
                     frag.appendChild(document.createTextNode(textNode.textContent.substring(lastIndex, match.index)));
                 }
 
-                let src = null;
+                let flagCode = null;
                 let emoji = null;
 
                 if (match[1]) {
                     // Flag emoji
                     emoji = match[1];
-                    src = '';
+                    flagCode = '';
                     for (let i = 1; i < emoji.length; i += 2) {
-                        src += String.fromCodePoint('a'.codePointAt(0) + emoji.charCodeAt(i) - 0xdde6);
+                        flagCode += String.fromCodePoint('a'.codePointAt(0) + emoji.charCodeAt(i) - 0xdde6);
                     }
                 } else if (match[2]) {
                     // GB emoji
                     emoji = match[2];
-                    src = '';
-                    for (let i = 3; i < emoji.length; i += 2) {
-                        src += String.fromCodePoint('a'.codePointAt(0) + emoji.charCodeAt(i) - 0xdc61);
+                    flagCode = '';
+                    for (let i = 3; i < emoji.length - 2; i += 2) {
+                        flagCode += String.fromCodePoint('a'.codePointAt(0) + emoji.charCodeAt(i) - 0xdc61);
                     }
                 } else if (match[3]) {
                     // Trans emoji
                     emoji = match[3];
-                    src = 'trans';
+                    flagCode = 'trans';
                 }
-
-                const codeMaps = {
-                    ac: 'sh',
-                    cp: 'fr',
-                    dg: 'io',
-                    ta: 'sh',
-                    ea: 'es',
-                    gbeng: 'gb-eng',
-                    gbsct: 'gb-sct',
-                    gbwls: 'gb-wls',
-                };
-                src = codeMaps[src] || src;
-
-                const srcMaps = {
-                    ic: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_the_Canary_Islands_%28simple%29.svg',
-                    trans: 'https://upload.wikimedia.org/wikipedia/commons/b/b0/Transgender_Pride_flag.svg',
-                };
-
-                src = src && (srcMaps[src] || `https://flagcdn.com/${src}.svg`);
 
                 if (emoji) {
                     replaced = true;
@@ -86,7 +67,8 @@
                     const span = document.createElement('span');
                     span.className = 'flagmoji';
                     const img = document.createElement('img');
-                    img.src = src;
+                    // TODO: make a build step and set this as a env
+                    img.src = `https://flagmoji.lecaominhhn.workers.dev/${flagCode}`;
                     img.alt = emoji;
                     img.addEventListener('copy', (e) => {
                         e.preventDefault();
@@ -112,6 +94,7 @@
 
     const style = document.createElement('style');
     // TODO: maybe use css variables for this
+    // TODO: use shadow dom
     function setStyle(size, padding) {
         style.textContent = `
             span.flagmoji {
@@ -122,11 +105,13 @@
                 align-items: center;
             }
             span.flagmoji img {
-                all: unset;
-                box-sizing: border-box;
-                width: ${size}em;
-                height: auto;
-                padding: 0 calc(${size}em * ${padding} / 200);
+                all: unset !important;
+                box-sizing: border-box !important;
+                width: auto !important;
+                /* i want to use lh but found a site that set lh to 0
+                so were using em to hopefully be more reliable */
+                height: ${size}em !important;
+                padding: calc(${size}em * ${padding} / 200) 0 !important;
             }
         `;
     }

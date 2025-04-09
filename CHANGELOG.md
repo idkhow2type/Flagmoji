@@ -1,3 +1,7 @@
+## v2.0.3
+- Updated Syrian flag
+- Minor bug fixes and design tweaks
+
 ## v2.0.2
 - Fixed issue with Linkedin
 
