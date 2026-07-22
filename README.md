@@ -11,6 +11,7 @@ Download the extension for Chromium browsers [here](https://chrome.google.com/we
 
 ## TODO:
 - [ ] Rewrite in TypeScript cuz why not
+- [ ] Change cloudflare domain
 
 ## Developing
 `zipped.py` and `zipped` are respectively a simple build script and config file to do packaging for the web store. Run it after you're done editing the extension. (Don't upload my extension as your own though)

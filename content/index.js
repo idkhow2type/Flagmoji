@@ -1,5 +1,6 @@
 (async () => {
     // the cool thing with this is it still doesnt give type hints
+    // TODO: not this cuz it shows up in network tab and looks dumb
     const src = chrome.runtime.getURL('../settings.js');
     const settings = (await import(src)).default;
 
@@ -14,7 +15,7 @@
      */
     function flagify(node) {
         const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
-        const textNodes = [];
+        const textNodes = node.nodeType == node.TEXT_NODE ? [node] : [];
         while (walker.nextNode()) {
             textNodes.push(walker.currentNode);
         }
@@ -67,7 +68,11 @@
                     const span = document.createElement('span');
                     span.className = 'flagmoji';
                     const img = document.createElement('img');
-                    // TODO: make a build step and set this as a env
+                    // TODO: change the subdomain
+                    // we want no downtime, so might have to release 2 updates
+                    // - first update supports both prioritise new domain
+                    // wait for adoption, then switch to new domain
+                    // - second update removes old domain
                     img.src = `https://flagmoji.lecaominhhn.workers.dev/${flagCode}`;
                     img.alt = emoji;
                     img.addEventListener('copy', (e) => {

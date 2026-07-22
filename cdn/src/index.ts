@@ -33,6 +33,7 @@ export default {
 			ic: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_the_Canary_Islands_%28simple%29.svg',
 			sy: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Flag_of_Syria_%282025-%29.svg',
 			trans: 'https://upload.wikimedia.org/wikipedia/commons/b/b0/Transgender_Pride_flag.svg',
+            cq: 'https://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Sark.svg'
 		};
 
 		return Response.redirect(srcMaps[flagCode as keyof typeof srcMaps] || `https://flagcdn.com/${flagCode}.svg`, 302);
