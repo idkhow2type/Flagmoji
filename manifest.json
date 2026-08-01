@@ -12,7 +12,7 @@
                 "<all_urls>"
             ],
             "js": [
-                "content/index.js"
+                "content.js"
             ],
             "all_frames": true
         }

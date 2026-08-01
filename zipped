@@ -2,7 +2,8 @@ flagmoji.zip
 ---
 assets/**
 !assets/banner/**
-content/**
-popup/**
 manifest.json
 settings.js
+content.js
+popup/**
+background.js
