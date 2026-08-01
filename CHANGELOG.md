@@ -1,3 +1,6 @@
+## v3.0.0
+- Changed resource loading system
+
 ## v2.0.3
 - Updated Syrian flag
 - Minor bug fixes and design tweaks

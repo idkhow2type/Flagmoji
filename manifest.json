@@ -1,20 +1,10 @@
 {
     "name": "Flagmoji",
     "description": "Displays flag emojis",
-    "version": "2.0.3",
+    "version": "3.0.0",
     "manifest_version": 3,
     "permissions": [
         "storage"
-    ],
-    "web_accessible_resources": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "resources": [
-                "settings.js"
-            ]
-        }
     ],
     "content_scripts": [
         {
@@ -27,6 +17,10 @@
             "all_frames": true
         }
     ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
     "action": {
         "default_popup": "popup/index.html",
         "default_icon": "./assets/icon.png"

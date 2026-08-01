@@ -1,19 +1,25 @@
 (async () => {
-    // the cool thing with this is it still doesnt give type hints
-    // TODO: not this cuz it shows up in network tab and looks dumb
-    const src = chrome.runtime.getURL('../settings.js');
-    const settings = (await import(src)).default;
+    let { size, padding, excluded_tags } = await chrome.storage.sync.get();
 
-    let { size, padding, excluded_tags } = await chrome.storage.sync.get({
-        size: settings.size.default,
-        padding: settings.padding.default,
-        excluded_tags: settings.excluded_tags.default,
-    });
+    const cache = new Map();
+    async function getSrc(code) {        
+        if (cache.has(code)) {
+            return cache.get(code);
+        }
+        const res = await chrome.runtime.sendMessage(code);
+        const blob = new Blob([new Uint8Array(res.data)], {
+            type: res.type,
+        });
+        const url = URL.createObjectURL(blob);
+        cache.set(code, url);
+        
+        return url;
+    }
 
     /**
      * @param {Node} node
      */
-    function flagify(node) {
+    async function flagify(node) {
         const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
         const textNodes = node.nodeType == node.TEXT_NODE ? [node] : [];
         while (walker.nextNode()) {
@@ -68,12 +74,7 @@
                     const span = document.createElement('span');
                     span.className = 'flagmoji';
                     const img = document.createElement('img');
-                    // TODO: change the subdomain
-                    // we want no downtime, so might have to release 2 updates
-                    // - first update supports both prioritise new domain
-                    // wait for adoption, then switch to new domain
-                    // - second update removes old domain
-                    img.src = `https://flagmoji.lecaominhhn.workers.dev/${flagCode}`;
+                    img.src = await getSrc(flagCode)
                     img.alt = emoji;
                     img.addEventListener('copy', (e) => {
                         e.preventDefault();
